@@ -1,0 +1,141 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentos"
+version = "0.1.0"
+description = "AgentOS: From Token-Level Context to Emergent System-Level Intelligence"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "you@example.com"},
+]
+keywords = [
+    "agentos",
+    "llm",
+    "multi-agent",
+    "cognitive-architecture",
+    "semantic-memory",
+    "attention-mechanism",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    # Core
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+
+    # Async
+    "asyncio>=3.4.3",
+
+    # LLM (attention access)
+    "transformers>=4.36.0",
+    "torch>=2.1.0",
+    "vllm>=0.2.0",  # Optional: faster inference
+
+    # Vector Database
+    "chromadb>=0.4.0",
+    "sentence-transformers>=2.3.0",  # For embeddings
+
+    # Storage
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.19.0",
+
+    # Visualization
+    "matplotlib>=3.7.0",
+    "plotly>=5.18.0",
+
+    # Utilities
+    "python-dotenv>=1.0.0",
+    "rich>=13.0.0",
+    "typer>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+    "pre-commit>=3.5.0",
+]
+postgres = [
+    "asyncpg>=0.29.0",
+]
+all = [
+    "agentos[dev,postgres]",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/agentos"
+Documentation = "https://github.com/yourusername/agentos/docs"
+Repository = "https://github.com/yourusername/agentos"
+Issues = "https://github.com/yourusername/agentos/issues"
+
+[project.scripts]
+agentos = "agentos.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentos"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["agentos"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=agentos",
+    "--cov-report=term-missing",
+]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+strict_equality = true

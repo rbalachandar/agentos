@@ -1,0 +1,35 @@
+# AgentOS Requirements
+# For Phase 1 development on Mac M1/M2
+
+# Core dependencies
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Async (for future phases)
+asyncio>=3.4.3
+
+# LLM backend - transformers for attention access
+transformers>=4.36.0
+torch>=2.1.0
+sentence-transformers>=2.3.0
+# vllm>=0.2.0  # Optional: faster inference (Linux only)
+
+# Vector database (for Phase 2)
+chromadb>=0.4.0
+
+# Storage (for Phase 2)
+sqlalchemy>=2.0.0
+aiosqlite>=0.19.0
+
+# Visualization
+matplotlib>=3.7.0
+plotly>=5.18.0
+
+# Utilities
+python-dotenv>=1.0.0
+rich>=13.0.0
+typer>=0.9.0
+
+# Pydantic for data validation
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
