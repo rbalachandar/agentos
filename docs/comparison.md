@@ -44,14 +44,14 @@ Slices are managed across three tiers:
 ```
 ┌─────────────────────────────────────────────────┐
 │  L1 Cache (Active Attention)                    │
-│  ~500 tokens, fastest access                     │
+│  ~500 tokens, fastest access                    │
 │  Top-scoring slices by importance               │
 └─────────────────────────────────────────────────┘
            ↓ (demand paging)
 ┌─────────────────────────────────────────────────┐
 │  L2 RAM (Deep Context)                          │
-│  ~2000 tokens, medium access                     │
-│  Mid-scoring slices                              │
+│  ~2000 tokens, medium access                    │
+│  Mid-scoring slices                             │
 └─────────────────────────────────────────────────┘
            ↓ (demand paging)
 ┌─────────────────────────────────────────────────┐
