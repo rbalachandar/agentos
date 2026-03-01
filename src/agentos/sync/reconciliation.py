@@ -106,6 +106,12 @@ class StateReconciler:
         # Collect all slice updates from agents
         for agent in agent_states:
             for slice_id in agent.active_slices:
+                # NOTE:
+                # This implementation is a demonstration stub.
+                # It does NOT read the actual slice content/version/embedding from the agents or DSM.
+                # Instead it synthesizes placeholder content and a simple timestamp-based version.
+                # For real reconciliation, wire in true SemanticSliceVersion objects coming from the
+                # distributed store (version vectors) and/or agent-provided slice embeddings.
                 # Create update (in production, would have actual slice data)
                 version = SemanticSliceVersion(
                     slice_id=slice_id,

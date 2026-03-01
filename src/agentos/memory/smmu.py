@@ -152,6 +152,12 @@ class SMMU:
         if self.l1.utilization > self.config.l1_utilization_threshold:
             self._page_out_from_l1()
 
+        # NOTE:
+        # `SMMUConfig.l2_utilization_threshold` is currently not used to automatically
+        # trigger L2 compaction/demotion to L3 during normal processing.
+        # If `process_slices()` is called repeatedly, L2 can keep accumulating slices
+        # unless `compact_l2()` is invoked by the caller or a higher-level maintenance loop.
+
         return l1_slice_ids
 
     def get_slice(self, slice_id: str) -> SemanticSlice | None:

@@ -12,6 +12,7 @@ and context switching preserves semantic state.
 
 from __future__ import annotations
 
+from datetime import datetime
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -212,7 +213,12 @@ class CognitiveScheduler:
             fidelity_bonus = thread.cognitive_fidelity * 50.0
 
         # Wait time penalty (threads waiting longer get boost)
-        wait_time = (time.time() - thread.last_run_at.timestamp()) if thread.last_run_at else 0
+        # Note: ReasoningControlBlock.last_run_at is a datetime.
+        wait_time = (
+            (datetime.now() - thread.last_run_at).total_seconds()
+            if thread.last_run_at
+            else 0.0
+        )
         wait_bonus = min(wait_time / 10.0, 20.0)  # Cap at 20 bonus
 
         # Context coherence bonus
@@ -253,7 +259,7 @@ class CognitiveScheduler:
         to_rcb = self.rcb_manager.get(to_thread_id)
         if to_rcb:
             self.rcb_manager.update_state(to_thread_id, ThreadState.RUNNING)
-            to_rcb.last_run_at = time.time()
+            to_rcb.last_run_at = datetime.now()
             to_rcb.time_slice_remaining = self.config.time_slice_ms
             restore_time = (time.time() - restore_start) * 1000
         else:
