@@ -63,9 +63,6 @@ from agentos.agent import (
     create_agent,
 )
 
-# CLI
-from agentos.cli import app
-
 __all__ = [
     # Version
     "__version__",
@@ -78,8 +75,6 @@ __all__ = [
     "AgentConfig",
     "AgentMemory",
     "create_agent",
-    # CLI
-    "app",
     # Kernel
     "ReasoningKernel",
     "ReasoningKernelConfig",

@@ -7,12 +7,6 @@ with multiple agents collaborating on tasks.
 """
 
 import argparse
-import sys
-from pathlib import Path
-
-# Add parent directory to path for standalone execution
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-
 from agentos import AgentOS, AgentOSConfig, create_agentos
 from agentos.scheduler import ThreadPriority
 
