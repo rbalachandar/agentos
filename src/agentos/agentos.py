@@ -673,3 +673,39 @@ def create_agentos(config: AgentOSConfig | None = None) -> AgentOS:
         Configured AgentOS instance
     """
     return AgentOS(config)
+
+
+def create_agentos_from_profile(
+    profile: str = "balanced",
+    **overrides,
+) -> AgentOS:
+    """Create an AgentOS system from a profile.
+
+    Convenience function that uses pre-tuned profiles to reduce
+    parameter tuning burden.
+
+    Args:
+        profile: Profile name ("fast", "balanced", "thorough")
+        **overrides: Configuration parameters to override
+
+    Returns:
+        Configured AgentOS instance
+
+    Example:
+        # Fast profile for resource-constrained environments
+        system = create_agentos_from_profile("fast")
+
+        # Balanced profile with custom model
+        system = create_agentos_from_profile(
+            "balanced",
+            model_name="Qwen/Qwen2.5-0.5B-Instruct"
+        )
+
+        # Thorough profile for research
+        system = create_agentos_from_profile("thorough")
+    """
+    from agentos.profiles import apply_profile
+
+    config_dict = apply_profile(profile, **overrides)
+    config = AgentOSConfig(**config_dict)
+    return AgentOS(config)
