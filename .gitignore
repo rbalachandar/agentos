@@ -8,6 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+data/
 build/
 develop-eggs/
 dist/
@@ -74,9 +75,7 @@ venv.bak/
 Thumbs.db
 
 # AgentOS specific
-data/l3_*/
-data/*.log
-*.log
+# Note: data/ is excluded above in Distribution section
 
 # Internal docs (development discussions)
 docs/internal/

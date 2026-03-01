@@ -214,28 +214,28 @@ agentos/
 │   └── agentos_cli.py       # Standalone CLI script
 │
 ├── examples/
-│   ├── semantic_slicing_demo.py       # Phase 1 demo
-│   ├── memory_hierarchy_demo.py       # Phase 2 demo
-│   ├── scheduler_demo.py              # Phase 3 demo
-│   ├── multi_agent_sync_demo.py       # Phase 4 demo
-│   ├── metrics_demo.py                # Phase 5 demo
-│   ├── integration_demo.py            # Phase 6: Full system
+│   ├── semantic_slicing_demo.py       
+│   ├── memory_hierarchy_demo.py       
+│   ├── scheduler_demo.py              
+│   ├── multi_agent_sync_demo.py       
+│   ├── metrics_demo.py                
+│   ├── integration_demo.py            # Full system
 │   └── test_system.py                 # Quick test script
 │
 ├── docs/
-│   ├── comparison.md        # AgentOS vs Traditional comparison
-│   ├── reasoning-kernel.md  # Semantic slicing explained
-│   ├── memory-hierarchy.md  # L1/L2/L3 memory management
-│   ├── scheduler-io.md      # Cognitive scheduling
-│   ├── multi-agent-sync.md  # Synchronization & CSP
+│   ├── comparison.md         # AgentOS vs Traditional comparison
+│   ├── reasoning-kernel.md   # Semantic slicing explained
+│   ├── memory-hierarchy.md   # L1/L2/L3 memory management
+│   ├── scheduler-io.md       # Cognitive scheduling
+│   ├── multi-agent-sync.md   # Synchronization & CSP
 │   ├── evaluation-metrics.md # Metrics and measurement
-│   └── integration.md       # Full system overview
+│   └── integration.md        # Full system overview
 │
 ├── tests/                   # Test files
-├── ISSUES.md               # Improvement roadmap (10 prioritized issues)
+├── ISSUES.md                # Improvement roadmap (10 prioritized issues)
 ├── LICENSE                  # MIT License
-├── pyproject.toml          # Project configuration
-└── README.md               # This file
+├── pyproject.toml           # Project configuration
+└── README.md                # This file
 ```
 
 ## Research Questions
