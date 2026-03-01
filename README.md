@@ -111,11 +111,18 @@ AgentOS offers bounded, scalable performance for long-running multi-agent conver
 git clone https://github.com/yourusername/agentos.git
 cd agentos
 
-# Install dependencies
+# Install (requires pip 21.3+)
 pip install -e .
 
 # Or for development
 pip install -e ".[dev]"
+```
+
+**Note:** Editable install requires pip 21.3 or later. For older versions:
+```bash
+# Alternative: Use PYTHONPATH
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
+python -m agentos.cli --generate
 ```
 
 ## Quick Start
