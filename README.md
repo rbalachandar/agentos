@@ -200,22 +200,42 @@ pre-commit install
 ```
 agentos/
 ├── src/agentos/
-│   ├── kernel/              # Reasoning Kernel
+│   ├── kernel/              # Reasoning Kernel with semantic slicing
 │   ├── memory/
-│   │   ├── slicing/         # Semantic Slicing (CID)
-│   │   └── tiers/           # L1/L2/L3 memory
-│   ├── scheduler/           # Cognitive Scheduler
-│   ├── sync/                # Multi-agent CSP
-│   ├── io/                  # Interrupt handling
-│   ├── models/              # LLM backends
-│   └── eval/                # Metrics and benchmarks
-├── tests/
+│   │   ├── slicing/         # Semantic Slicing (CID, boundaries)
+│   │   └── tiers/           # L1/L2/L3 memory tiers
+│   ├── scheduler/           # Cognitive Scheduler & RCB
+│   ├── sync/                # Multi-agent CSP & DSM
+│   ├── io/                  # Interrupt handling & peripherals
+│   ├── synthesis/           # Semantic synthesis for multi-agent output
+│   └── eval/                # Metrics and visualization
+│
+├── bin/
+│   └── agentos_cli.py       # Standalone CLI script
+│
 ├── examples/
+│   ├── semantic_slicing_demo.py       # Phase 1 demo
+│   ├── memory_hierarchy_demo.py       # Phase 2 demo
+│   ├── scheduler_demo.py              # Phase 3 demo
+│   ├── multi_agent_sync_demo.py       # Phase 4 demo
+│   ├── metrics_demo.py                # Phase 5 demo
+│   ├── integration_demo.py            # Phase 6: Full system
+│   └── test_system.py                 # Quick test script
+│
 ├── docs/
-│   ├── phase_*.md           # Phase explanations
-│   └── summaries/           # Phase summaries & plans
-├── ISSUES.md                # Improvement roadmap
-└── README.md
+│   ├── comparison.md        # AgentOS vs Traditional comparison
+│   ├── reasoning-kernel.md  # Semantic slicing explained
+│   ├── memory-hierarchy.md  # L1/L2/L3 memory management
+│   ├── scheduler-io.md      # Cognitive scheduling
+│   ├── multi-agent-sync.md  # Synchronization & CSP
+│   ├── evaluation-metrics.md # Metrics and measurement
+│   └── integration.md       # Full system overview
+│
+├── tests/                   # Test files
+├── ISSUES.md               # Improvement roadmap (10 prioritized issues)
+├── LICENSE                  # MIT License
+├── pyproject.toml          # Project configuration
+└── README.md               # This file
 ```
 
 ## Research Questions
