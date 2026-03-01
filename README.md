@@ -136,11 +136,6 @@ agentos --generate
 agentos --generate --model Qwen/Qwen2.5-0.5B-Instruct
 ```
 
-**Or run directly:**
-```bash
-python bin/agentos_cli.py --generate
-```
-
 **CLI Commands:**
 - `/help` - Show help
 - `/agents` - List all agents
@@ -208,10 +203,8 @@ agentos/
 │   ├── sync/                # Multi-agent CSP & DSM
 │   ├── io/                  # Interrupt handling & peripherals
 │   ├── synthesis/           # Semantic synthesis for multi-agent output
+│   ├── cli.py               # CLI module with app() entry point
 │   └── eval/                # Metrics and visualization
-│
-├── bin/
-│   └── agentos_cli.py       # Standalone CLI script
 │
 ├── examples/
 │   ├── semantic_slicing_demo.py       
