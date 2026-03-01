@@ -29,31 +29,31 @@ AgentOS redefines the LLM as a **"Reasoning Kernel"** governed by structured ope
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     AgentOS                                  │
-│                                                              │
-│  ┌────────────────────────────────────────────────────┐    │
-│  │  Reasoning Kernel (RK)                              │    │
-│  │  Contextual Transition: 𝓕(Sₜ, 𝒞ₐddᵣ) → Sₜ₊₁          │    │
-│  └────────────────────────────────────────────────────┘    │
+│                     AgentOS                                 │
+│                                                             │
+│  ┌────────────────────────────────────────────────────┐     │
+│  │  Reasoning Kernel (RK)                             │     │
+│  │  Contextual Transition: 𝓕(Sₜ, 𝒞ₐddᵣ) → Sₜ₊₁         │     │
+│  └────────────────────────────────────────────────────┘     │
 │                           ↓                                 │
-│  ┌────────────────────────────────────────────────────┐    │
-│  │  S-MMU (Semantic Memory Management Unit)            │    │
-│  │  ┌─────────────────────────────────────────────┐   │    │
-│  │  │ L1 Cache    │ L2 RAM       │ L3 Storage     │   │    │
-│  │  │ (Active)    │ (Deep Ctx)   │ (Knowledge)    │   │    │
-│  │  │ KV-Cache    │ Vector DB    │ RAG Systems    │   │    │
-│  │  └─────────────────────────────────────────────┘   │    │
-│  └────────────────────────────────────────────────────┘    │
+│  ┌────────────────────────────────────────────────────┐     │
+│  │  S-MMU (Semantic Memory Management Unit)           │     │
+│  │  ┌─────────────────────────────────────────────┐   │     │
+│  │  │ L1 Cache    │ L2 RAM       │ L3 Storage     │   │     │
+│  │  │ (Active)    │ (Deep Ctx)   │ (Knowledge)    │   │     │
+│  │  │ KV-Cache    │ Vector DB    │ RAG Systems    │   │     │
+│  │  └─────────────────────────────────────────────┘   │     │
+│  └────────────────────────────────────────────────────┘     │
 │                           ↓                                 │
-│  ┌────────────────────────────────────────────────────┐    │
-│  │  Cognitive Scheduler                                │    │
-│  │  Optimizes for Cognitive Fidelity, not CPU time     │    │
-│  └────────────────────────────────────────────────────┘    │
+│  ┌────────────────────────────────────────────────────┐     │
+│  │  Cognitive Scheduler                               │     │
+│  │  Optimizes for Cognitive Fidelity, not CPU time    │     │
+│  └────────────────────────────────────────────────────┘     │
 │                           ↓                                 │
-│  ┌────────────────────────────────────────────────────┐    │
-│  │  Multi-Agent Sync (CSP)                             │    │
-│  │  Cognitive Sync Pulses for temporal coherence       │    │
-│  └────────────────────────────────────────────────────┘    │
+│  ┌────────────────────────────────────────────────────┐     │
+│  │  Multi-Agent Sync (CSP)                            │     │
+│  │  Cognitive Sync Pulses for temporal coherence      │     │
+│  └────────────────────────────────────────────────────┘     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -91,15 +91,21 @@ pip install -e ".[dev]"
 
 Run the AgentOS CLI for an interactive multi-agent experience:
 
+**After installation:**
 ```bash
 # Fast mode (placeholder responses, ~8s startup)
-python agentos_cli.py
+agentos
 
 # Full mode (actual LLM generation, ~40s startup)
-python agentos_cli.py --generate
+agentos --generate
 
 # Custom model
-python agentos_cli.py --generate --model Qwen/Qwen2.5-0.5B-Instruct
+agentos --generate --model Qwen/Qwen2.5-0.5B-Instruct
+```
+
+**Or run directly:**
+```bash
+python bin/agentos_cli.py --generate
 ```
 
 **CLI Commands:**
