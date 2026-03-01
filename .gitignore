@@ -81,7 +81,6 @@ Thumbs.db
 docs/internal/
 
 # Model cache
-models/
 *.bin
 *.safetensors
 *.gguf
