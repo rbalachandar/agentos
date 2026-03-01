@@ -106,7 +106,12 @@ class CIDCalculator:
         densities = np.clip(densities, 0.0, 1.0)
 
         # Step 5: Compute gradient ∂D(t)/∂t
-        gradients = np.gradient(densities)
+        # Handle edge case: sequences too small for gradient calculation
+        if len(densities) >= 2:
+            gradients = np.gradient(densities)
+        else:
+            # Single element: gradient is 0
+            gradients = np.zeros_like(densities)
 
         return DensityProfile(
             densities=densities.astype(np.float32),

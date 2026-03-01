@@ -151,6 +151,96 @@ agentos --generate --model Qwen/Qwen2.5-0.5B-Instruct
 - `/sync` - Trigger manual sync
 - `/quit` or `/exit` - Exit
 
+**Sample CLI Output:**
+```
+$ agentos --generate
+
+Initializing AgentOS...
+Ready! 2 agents loaded.
+LLM Generation: ENABLED
+
+============================================================
+  AgentOS CLI - Interactive Multi-Agent System
+============================================================
+
+Commands:
+  /help      - Show this help message
+  /agents    - List all agents
+  /stats     - Show system statistics
+  /sync      - Trigger manual sync
+  /memory    - Show memory utilization
+  /quit or /exit - Quit the application
+
+Just type your message and agents will respond!
+
+You> What is consciousness?
+
+Processing: What is consciousness?
+
+----------------------------------------
+Agent Contributions:
+----------------------------------------
+Researcher (researcher):
+  This requires LLM generation. Placeholder: Consciousness is
+  the state of being aware of and responsive to one's surroundings.
+
+Critic (critic):
+  This requires LLM generation. Placeholder: The concept of
+  consciousness remains one of philosophy's deepest mysteries.
+
+----------------------------------------
+Final Synthesis:
+----------------------------------------
+This requires LLM generation. Placeholder: The synthesis of these
+perspectives reveals that consciousness encompasses both subjective
+experience and objective awareness.
+
+Duration: 150ms | Sync pulses: 1
+
+You> /stats
+
+System Statistics:
+----------------------------------------
+  Uptime: 25.3s
+  Agents: 2
+
+Memory:
+  L1 Cache: 45.2%
+  L2 RAM: 38.1%
+  L3 Storage: 8 slices
+
+Cognitive Drift:
+  Average: 0.125
+  Max: 0.187
+  Sync pulses: 3
+
+You> /memory
+
+Memory Hierarchy:
+----------------------------------------
+L1 Cache (Active Attention Window):
+  Utilization: 45.2%
+  Tokens: 231/512
+  Slices: 3
+
+L2 RAM (Deep Context):
+  Utilization: 38.1%
+  Tokens: 780/2048
+  Slices: 12
+
+L3 Storage (Knowledge Base):
+  Slices: 8
+  Total size: 2048 bytes
+
+Page Table:
+  L1 entries: 3
+  L2 entries: 12
+  L3 entries: 8
+
+You> /quit
+Goodbye!
+```
+
 ### Python API
 
 > Note: This is a research prototype requiring local models for attention access.
