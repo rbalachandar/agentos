@@ -78,6 +78,9 @@ data/l3_*/
 data/*.log
 *.log
 
+# Internal docs (development discussions)
+docs/internal/
+
 # Model cache
 models/
 *.bin

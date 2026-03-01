@@ -65,16 +65,3 @@ For a complete understanding, read in order:
 6. **[Integration](integration.md)** - Complete working system
 
 Each component builds on the previous one - like layers of an operating system!
-
----
-
-## Internal Documentation
-
-The [`internal/`](internal/) folder contains development discussion documents:
-
-- **ANALYSIS.md** - Comparative analysis of AgentOS vs traditional systems
-- **IMPROVEMENT_PLANS.md** - Detailed mitigation strategies for known disadvantages
-- **PHASE*_SUMMARY.md** - Phase-by-phase development summaries
-- **PROJECT_PLAN.md** - Original implementation roadmap
-
-These are kept for reference and future development discussions.
