@@ -58,6 +58,13 @@ class AgentOSConfig:
     l2_max_slices: int = 100
     l3_storage_path: str = "./data/l3"
 
+    # Cold start mitigation: L3 bootstrap and restore
+    l3_bootstrap_paths: list[str] | None = None  # Paths to JSONL files for L3 bootstrap
+    l3_restore_path: str | None = None  # Path to restore L3 state from previous session
+    l3_save_path: str | None = "./data/l3_state"  # Path to save L3 state for restore
+    enable_adaptive_scoring: bool = True  # Enable adaptive importance scoring during warmup
+    warmup_turns: int = 5  # Number of turns for warmup period
+
     # Scheduler configuration
     scheduler_time_slice_ms: float = 100.0
     scheduler_use_cognitive_fidelity: bool = True
@@ -159,6 +166,26 @@ class AgentOS:
                 ),
             )
         )
+
+        # Cold Start Mitigation: L3 Bootstrap
+        if self.config.l3_bootstrap_paths:
+            loaded = self.smmu.bootstrap_l3_from_files(self.config.l3_bootstrap_paths)
+            if loaded > 0:
+                self._log(f"Bootstrapped L3 with {loaded} slices from domain knowledge")
+
+        # Cold Start Mitigation: Session Restore
+        if self.config.l3_restore_path:
+            restored = self.smmu.restore_l3_state(self.config.l3_restore_path)
+            if restored > 0:
+                self._log(f"Restored L3 state with {restored} slices from previous session")
+
+        # Cold Start Mitigation: Adaptive Scoring
+        if self.config.enable_adaptive_scoring:
+            self.smmu.enable_adaptive_scoring(warmup_turns=self.config.warmup_turns)
+            self._log(
+                f"Enabled adaptive importance scoring "
+                f"(warmup: {self.config.warmup_turns} turns)"
+            )
 
         # Phase 3: Scheduler & I/O
         self.scheduler = CognitiveScheduler(
@@ -428,6 +455,19 @@ class AgentOS:
         )
 
         self._task_history.append(result)
+
+        # Cold Start Mitigation: Advance turn for adaptive scoring
+        self.smmu.advance_turn()
+
+        # Log warmup progress if in warmup period
+        if not self.smmu.is_warmed_up:
+            warmup_stats = self.get_warmup_stats()
+            if warmup_stats:
+                self._log(
+                    f"Warmup progress: {warmup_stats['warmup_progress']:.1%} "
+                    f"(turn {warmup_stats['turn_count']}/{warmup_stats['warmup_turns']})"
+                )
+
         return result
 
     def _produce_final_synthesis(
@@ -557,10 +597,59 @@ class AgentOS:
         if self.dsm.backend == StoreBackend.FILE:
             self.dsm.persist_to_disk()
 
+        # Cold Start Mitigation: Save L3 state for restore
+        if self.config.l3_save_path:
+            if self.smmu.save_l3_state(self.config.l3_save_path):
+                self._log(f"Saved L3 state to {self.config.l3_save_path}")
+
         # Persist metrics if enabled
         if self.metrics and self.config.metrics_output_path:
             # Could save metrics to file here
             pass
+
+    def _log(self, message: str, level: str = "INFO") -> None:
+        """Internal logging method.
+
+        Args:
+            message: Message to log
+            level: Log level (INFO, WARNING, ERROR)
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        log_method = getattr(logger, level.lower(), logger.info)
+        log_method(f"[AgentOS] {message}")
+
+    def save_session(self, save_path: str | None = None) -> bool:
+        """Save current session state for future restore.
+
+        Args:
+            save_path: Path to save state. If None, uses config.l3_save_path
+
+        Returns:
+            True if successful, False otherwise
+        """
+        path = save_path or self.config.l3_save_path
+        if not path:
+            return False
+        return self.smmu.save_l3_state(path)
+
+    def is_warmed_up(self) -> bool:
+        """Check if system has completed warmup period.
+
+        Returns:
+            True if warmed up, False if still in warmup
+        """
+        return self.smmu.is_warmed_up
+
+    def get_warmup_stats(self) -> dict[str, object] | None:
+        """Get warmup statistics from adaptive scorer.
+
+        Returns:
+            Warmup stats dict if adaptive scoring is enabled, None otherwise
+        """
+        if hasattr(self.smmu, "adaptive_scorer") and self.smmu.adaptive_scorer:
+            return self.smmu.adaptive_scorer.get_warmup_stats()
+        return None
 
     def __enter__(self) -> "AgentOS":
         """Context manager entry."""
