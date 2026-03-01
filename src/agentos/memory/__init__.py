@@ -6,6 +6,7 @@ Exports components for the Cognitive Memory Hierarchy (CMH):
 - S-MMU (Semantic Memory Management Unit)
 - L1 Cache, L2 RAM, L3 Storage
 - Importance Calculator
+- Adaptive Importance Scoring (Cold Start mitigation)
 """
 
 from agentos.memory.importance import (
@@ -14,6 +15,11 @@ from agentos.memory.importance import (
     compute_importance,
 )
 from agentos.memory.page_table import PageTable, PageTableConfig
+from agentos.memory.scoring import (
+    AdaptiveImportanceScorer,
+    AdaptiveScoringConfig,
+    create_adaptive_scorer,
+)
 from agentos.memory.smmu import SMMU, SMMUConfig
 from agentos.memory.tiers.l1_cache import L1Cache, L1CacheConfig, L1Entry
 from agentos.memory.tiers.l2_ram import L2RAM, L2Config, L2Entry
@@ -40,6 +46,10 @@ __all__ = [
     "ImportanceCalculator",
     "ImportanceConfig",
     "compute_importance",
+    # Adaptive Scoring (Cold Start)
+    "AdaptiveImportanceScorer",
+    "AdaptiveScoringConfig",
+    "create_adaptive_scorer",
     # Page Table
     "PageTable",
     "PageTableConfig",

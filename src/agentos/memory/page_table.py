@@ -310,3 +310,65 @@ class PageTable:
             "l2": self.l2_count,
             "l3": self.l3_count,
         }
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize page table to dictionary.
+
+        Returns:
+            Dictionary representation of page table state
+        """
+        entries_dict = {}
+        for slice_id, entry in self._entries.items():
+            entries_dict[slice_id] = {
+                "slice_id": entry.slice_id,
+                "tier": entry.tier.value,
+                "importance_score": entry.importance_score,
+                "created_at": entry.created_at.isoformat(),
+                "last_accessed": entry.last_accessed.isoformat(),
+                "access_count": entry.access_count,
+                "is_pinned": entry.is_pinned,
+                "l1_position": entry.l1_position,
+                "l2_collection": entry.l2_collection,
+                "l3_path": entry.l3_path,
+                "metadata": entry.metadata,
+            }
+
+        return {
+            "entries": entries_dict,
+            "config": {
+                "max_l1_entries": self.config.max_l1_entries,
+                "max_l2_entries": self.config.max_l2_entries,
+                "max_l3_entries": self.config.max_l3_entries,
+            },
+        }
+
+    def from_dict(self, data: dict[str, Any]) -> None:
+        """Restore page table from dictionary.
+
+        Args:
+            data: Dictionary representation of page table state
+        """
+        from agentos.memory.types import MemoryTier
+
+        entries_dict = data.get("entries", {})
+
+        for slice_id, entry_data in entries_dict.items():
+            # Convert tier string back to enum
+            tier = MemoryTier(entry_data["tier"])
+
+            # Create entry
+            entry = PageTableEntry(
+                slice_id=entry_data["slice_id"],
+                tier=tier,
+                importance_score=entry_data["importance_score"],
+                created_at=datetime.fromisoformat(entry_data["created_at"]),
+                last_accessed=datetime.fromisoformat(entry_data["last_accessed"]),
+                access_count=entry_data["access_count"],
+                is_pinned=entry_data.get("is_pinned", False),
+                l1_position=entry_data.get("l1_position"),
+                l2_collection=entry_data.get("l2_collection"),
+                l3_path=entry_data.get("l3_path"),
+                metadata=entry_data.get("metadata", {}),
+            )
+
+            self._entries[slice_id] = entry

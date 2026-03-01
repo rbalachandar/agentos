@@ -391,3 +391,183 @@ class SMMU:
             },
             "page_table": self.page_table.get_stats(),
         }
+
+    def bootstrap_l3_from_files(self, bootstrap_paths: list[str]) -> int:
+        """Bootstrap L3 storage from domain knowledge files.
+
+        Loads pre-computed semantic slices from JSONL files to provide
+        initial knowledge and reduce cold start effects.
+
+        Args:
+            bootstrap_paths: List of paths to JSONL files containing slices
+
+        Returns:
+            Number of slices loaded
+
+        Example JSONL format:
+            {"id": "slice_001", "start_pos": 0, "end_pos": 10,
+             "tokens": ["Hello", "world"], "token_ids": [123, 456],
+             "content": "Hello world", "density_mean": 0.5, "density_std": 0.1,
+             "importance_score": 0.7, "metadata": {"source": "bootstrap"}}
+        """
+        import json
+        from pathlib import Path
+
+        loaded_count = 0
+        for path_str in bootstrap_paths:
+            path = Path(path_str)
+            if not path.exists():
+                continue
+
+            with open(path, "r") as f:
+                for line in f:
+                    if not line.strip():
+                        continue
+                    try:
+                        slice_dict = json.loads(line)
+                        # Reconstruct SemanticSlice
+                        slice_data = SemanticSlice(
+                            id=slice_dict["id"],
+                            start_pos=slice_dict["start_pos"],
+                            end_pos=slice_dict["end_pos"],
+                            tokens=slice_dict["tokens"],
+                            token_ids=slice_dict["token_ids"],
+                            content=slice_dict["content"],
+                            density_mean=slice_dict["density_mean"],
+                            density_std=slice_dict["density_std"],
+                            importance_score=slice_dict.get("importance_score", 0.5),
+                            metadata=slice_dict.get("metadata", {}),
+                        )
+
+                        # Add to L3
+                        self.l3.add(slice_data)
+
+                        # Register in page table
+                        self.page_table.register(
+                            slice_id=slice_data.id,
+                            tier=MemoryTier.L3,
+                            importance_score=slice_data.importance_score,
+                        )
+
+                        # Set L3 path in page table
+                        l3_path = self.l3.get_slice_path(slice_data.id)
+                        if l3_path:
+                            self.page_table.set_l3_path(slice_data.id, str(l3_path))
+
+                        loaded_count += 1
+                    except (json.JSONDecodeError, KeyError) as e:
+                        # Skip invalid entries
+                        continue
+
+        return loaded_count
+
+    def save_l3_state(self, save_path: str) -> bool:
+        """Save L3 state for session restore.
+
+        Serializes L3 storage and page table state to enable
+        restoring a previous session and reducing cold start.
+
+        Args:
+            save_path: Path to save the state
+
+        Returns:
+            True if successful, False otherwise
+        """
+        import json
+        from pathlib import Path
+
+        try:
+            save_dir = Path(save_path)
+            save_dir.mkdir(parents=True, exist_ok=True)
+
+            # Save L3 index
+            l3_index_path = save_dir / "l3_index.json"
+            with open(l3_index_path, "w") as f:
+                json.dump(self.l3._index, f, indent=2)
+
+            # Save page table state
+            page_table_path = save_dir / "page_table.json"
+            with open(page_table_path, "w") as f:
+                json.dump(self.page_table.to_dict(), f, indent=2)
+
+            # Save metadata
+            metadata_path = save_dir / "metadata.json"
+            with open(metadata_path, "w") as f:
+                json.dump({
+                    "l1_utilization": self.l1.utilization,
+                    "l2_utilization": self.l2.utilization,
+                    "l3_slice_count": self.l3.slice_count,
+                }, f, indent=2)
+
+            return True
+        except Exception:
+            return False
+
+    def restore_l3_state(self, restore_path: str) -> int:
+        """Restore L3 state from previous session.
+
+        Loads L3 storage and page table state to continue from
+        a previous session without cold start.
+
+        Args:
+            restore_path: Path to restore the state from
+
+        Returns:
+            Number of slices restored
+        """
+        import json
+        from pathlib import Path
+
+        restore_dir = Path(restore_path)
+        if not restore_dir.exists():
+            return 0
+
+        restored_count = 0
+
+        # Restore L3 index
+        l3_index_path = restore_dir / "l3_index.json"
+        if l3_index_path.exists():
+            with open(l3_index_path, "r") as f:
+                self.l3._index = json.load(f)
+
+        # Restore page table state
+        page_table_path = restore_dir / "page_table.json"
+        if page_table_path.exists():
+            with open(page_table_path, "r") as f:
+                page_table_dict = json.load(f)
+                self.page_table.from_dict(page_table_dict)
+
+        # Count restored slices
+        restored_count = len(self.l3._index)
+
+        return restored_count
+
+    def enable_adaptive_scoring(self, warmup_turns: int = 5) -> None:
+        """Enable adaptive importance scoring for cold start mitigation.
+
+        During warmup, recency weight is boosted and new slices receive
+        bonus importance to build a useful knowledge base quickly.
+
+        Args:
+            warmup_turns: Number of turns for warmup period
+        """
+        from agentos.memory.scoring import AdaptiveImportanceScorer, AdaptiveScoringConfig
+
+        config = AdaptiveScoringConfig(warmup_turns=warmup_turns)
+        self.adaptive_scorer = AdaptiveImportanceScorer(config)
+
+    def disable_adaptive_scoring(self) -> None:
+        """Disable adaptive importance scoring."""
+        self.adaptive_scorer = None
+
+    def advance_turn(self) -> None:
+        """Advance to the next turn (for adaptive scoring)."""
+        if hasattr(self, "adaptive_scorer") and self.adaptive_scorer:
+            self.adaptive_scorer.advance_turn()
+
+    @property
+    def is_warmed_up(self) -> bool:
+        """Check if system has completed warmup period."""
+        if hasattr(self, "adaptive_scorer") and self.adaptive_scorer:
+            return self.adaptive_scorer.is_warmed_up
+        return True  # No adaptive scorer = always "warmed up"
