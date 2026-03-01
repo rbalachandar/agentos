@@ -55,6 +55,7 @@ from agentos.agentos import (
     AgentOSConfig,
     CollaborationResult,
     create_agentos,
+    create_agentos_from_profile,
 )
 from agentos.agent import (
     Agent,
@@ -71,6 +72,7 @@ __all__ = [
     "AgentOSConfig",
     "CollaborationResult",
     "create_agentos",
+    "create_agentos_from_profile",
     "Agent",
     "AgentConfig",
     "AgentMemory",
