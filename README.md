@@ -63,6 +63,8 @@ AgentOS redefines the LLM as a **"Reasoning Kernel"** governed by structured ope
 
 📋 **[ISSUES.md](ISSUES.md)** - 10 prioritized improvement items for production readiness
 
+📖 **[docs/comparison.md](docs/comparison.md)** - AgentOS vs Traditional: Unbiased analysis
+
 📖 **[docs/](docs/)** - Component documentation and explanations
 
 ## Requirements

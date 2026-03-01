@@ -2,6 +2,12 @@
 
 This directory contains explanations for each component of the AgentOS system.
 
+## Overview
+
+| Document | Description |
+|----------|-------------|
+| [Comparison](comparison.md) | AgentOS vs Traditional systems - unbiased analysis of advantages, disadvantages, and when to use each |
+
 ## Core Components
 
 | Component | File | Description |
