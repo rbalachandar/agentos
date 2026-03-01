@@ -182,7 +182,10 @@ class AgentOS:
         # Cold Start Mitigation: Adaptive Scoring
         if self.config.enable_adaptive_scoring:
             self.smmu.enable_adaptive_scoring(warmup_turns=self.config.warmup_turns)
-            self._log(f"Enabled adaptive importance scoring (warmup: {self.config.warmup_turns} turns)")
+            self._log(
+                f"Enabled adaptive importance scoring "
+                f"(warmup: {self.config.warmup_turns} turns)"
+            )
 
         # Phase 3: Scheduler & I/O
         self.scheduler = CognitiveScheduler(

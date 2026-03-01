@@ -143,7 +143,8 @@ class SMMU:
             self.page_table.set_l2_collection(slice_data.id, self.config.l2_config.collection_name)
 
             # High-importance slices go to L1
-            if importance > self.config.l1_promotion_threshold and self.l1.available_tokens >= slice_data.token_count:
+            if (importance > self.config.l1_promotion_threshold and
+                    self.l1.available_tokens >= slice_data.token_count):
                 self._promote_to_l1(slice_data.id)
                 l1_slice_ids.append(slice_data.id)
 
