@@ -28,6 +28,9 @@ from agentos.memory.slicing.slicer import SemanticSlicer, SemanticSlicerConfig
 from agentos.memory.slicing.types import AttentionOutput, SemanticSlice, SlicingResult
 from agentos.models.transformers_backend import TransformersBackend, BackendConfig
 
+# Health check types (imported locally to avoid circular dependency)
+HealthStatus = Any  # Will be properly typed in health_check method
+
 logger = logging.getLogger(__name__)
 
 
@@ -37,7 +40,8 @@ class KernelState(str, Enum):
     UNINITIALIZED = "uninitialized"
     IDLE = "idle"
     PROCESSING = "processing"
-    INTERRUPTED = "interrupted"  # Reserved for future interrupt handling (Reasoning Interrupt Cycle)
+    # Reserved for future interrupt handling (Reasoning Interrupt Cycle)
+    INTERRUPTED = "interrupted"
     ERROR = "error"
 
 
@@ -497,6 +501,66 @@ class ReasoningKernel:
             "device": str(self._backend.device),
             "model": self._backend.config.model_name,
         }
+
+    def health_check(self) -> HealthStatus:
+        """Check the health of the reasoning kernel.
+
+        Returns:
+            HealthStatus indicating kernel health
+        """
+        from agentos.common.health import HealthState, HealthStatus, healthy, degraded, unhealthy
+
+        # Check if model is loaded
+        if self._kernel_state == KernelState.UNINITIALIZED:
+            return degraded(
+                component="reasoning_kernel",
+                message="Kernel not initialized",
+                details={"kernel_state": self._kernel_state.value},
+            )
+
+        # Check if in error state
+        if self._kernel_state == KernelState.ERROR:
+            return unhealthy(
+                component="reasoning_kernel",
+                message="Kernel is in error state",
+                details={"kernel_state": self._kernel_state.value},
+            )
+
+        # Check model backend
+        try:
+            if self._backend and self._backend.model:
+                # Check device availability
+                device = self._backend.device
+                if device.type == "cuda" and not self._backend.model.cuda():
+                    return degraded(
+                        component="reasoning_kernel",
+                        message="CUDA device not available",
+                        details={"device": str(device)},
+                    )
+        except Exception as e:
+            return unhealthy(
+                component="reasoning_kernel",
+                message=f"Backend error: {e}",
+                error=e,
+            )
+
+        # Check memory utilization
+        context_summary = self.get_context_summary()
+        active_tokens = context_summary["active_tokens"]
+        max_tokens = self.config.l1_max_tokens
+
+        if active_tokens > max_tokens * 0.9:
+            return degraded(
+                component="reasoning_kernel",
+                message=f"High memory utilization: {active_tokens}/{max_tokens} tokens",
+                details={"utilization": active_tokens / max_tokens},
+            )
+
+        return healthy(
+            component="reasoning_kernel",
+            message="Kernel is healthy",
+            details=context_summary,
+        )
 
     def __enter__(self):
         """Context manager entry."""
