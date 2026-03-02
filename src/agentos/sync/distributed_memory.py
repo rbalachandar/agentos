@@ -203,6 +203,14 @@ class DistributedSharedMemory:
         new_version = vv.increment(slice_id)
 
         # Check for conflicts with other agents
+        # NOTE:
+        # The conflict detection logic below is intentionally simplified.
+        # In a real DSM with version vectors, conflict checks should compare the writer's
+        # last-known version (or the store's current version) against other agents' versions
+        # to detect concurrent updates.
+        # Be careful with argument direction: passing `new_version` into another agent's
+        # vector comparison can lead to inverted semantics (false conflicts / missed conflicts)
+        # depending on the definition of "newer".
         for other_agent_id, other_vv in self._version_vectors.items():
             if other_agent_id == agent_id:
                 continue
