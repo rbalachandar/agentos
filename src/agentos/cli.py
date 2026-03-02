@@ -24,6 +24,7 @@ def print_banner():
     print("  /stats     - Show system statistics")
     print("  /sync      - Trigger manual sync")
     print("  /memory    - Show memory utilization")
+    print("  /health    - Show system health status")
     print("  /quit or /exit - Quit the application")
     print()
     print("Just type your message and agents will respond!")
@@ -115,6 +116,49 @@ def trigger_sync(system):
     print(f"  Agents synced: {pulse.agents_synced}")
     if pulse.error:
         print(f"  Error: {pulse.error}")
+    print()
+
+
+def print_health(system):
+    """Print system health status."""
+    health_dict = system.get_health_status()
+    overall_state = health_dict["overall_state"]
+
+    # Choose emoji based on health state
+    if overall_state == "healthy":
+        emoji = "✓"
+    elif overall_state == "degraded":
+        emoji = "⚠"
+    else:
+        emoji = "✗"
+
+    print()
+    print(f"System Health: {emoji} {overall_state.upper()}")
+    print("-" * 40)
+
+    # Show unhealthy components first
+    if health_dict["unhealthy_components"]:
+        print("Unhealthy Components:")
+        for comp in health_dict["unhealthy_components"]:
+            status = health_dict["components"][comp]
+            print(f"  ✗ {comp}: {status['message']}")
+        print()
+
+    # Show degraded components
+    if health_dict["degraded_components"]:
+        print("Degraded Components:")
+        for comp in health_dict["degraded_components"]:
+            status = health_dict["components"][comp]
+            print(f"  ⚠ {comp}: {status['message']}")
+        print()
+
+    # Show all component details
+    print("All Components:")
+    for comp, status in health_dict["components"].items():
+        status_emoji = "✓" if status["state"] == "healthy" else (
+            "⚠" if status["state"] == "degraded" else "✗"
+        )
+        print(f"  {status_emoji} {comp}: {status['message']}")
     print()
 
 
@@ -242,6 +286,10 @@ def main():
 
             elif user_input.lower() == "/sync":
                 trigger_sync(system)
+                continue
+
+            elif user_input.lower() == "/health":
+                print_health(system)
                 continue
 
             # Regular input - process through agents

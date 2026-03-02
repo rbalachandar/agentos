@@ -107,30 +107,33 @@ This file tracks all issues for mitigating AgentOS disadvantages. These can be c
 **Problem:** Failure in one component (Slicer → S-MMU → Scheduler → CSP) propagates and brings down entire system.
 
 **Mitigation Strategy:**
+- [x] Implement Health Checks
+  - Added `health_check()` method to Kernel and S-MMU
+  - Returns `HealthStatus(healthy, details)`
+  - Integrated at critical points (before collaboration starts)
+  - Added `/health` CLI command for manual inspection
 - [ ] Implement Circuit Breaker pattern
-  - Create `src/agentos/common/circuit_breaker.py`
-  - Isolate failing components
-  - Auto-recovery after timeout
-- [ ] Implement Health Checks
-  - Add `health_check()` method to each major component
-  - Return `HealthStatus(healthy, details)`
+  - **DEFERRED** - Removed unused implementation
+  - Will add when specific operations show repeated failure patterns
+  - Can wrap: `kernel.process()`, `smmu.get_slice()`, agent operations
 - [ ] Implement Bulkhead pattern
   - Resource limits per component (memory, CPU)
   - Prevent runaway resource consumption
 
 **Files to modify:**
-- `src/agentos/common/__init__.py` (NEW)
-- `src/agentos/common/circuit_breaker.py` (NEW)
-- `src/agentos/common/health.py` (NEW)
-- `src/agentos/kernel/reasoning_kernel.py` - Add health_check()
-- `src/agentos/memory/smmu.py` - Add health_check()
-- `src/agentos/scheduler/cognitive_scheduler.py` - Add health_check()
-- `src/agentos/sync/orchestrator.py` - Add health_check()
+- `src/agentos/common/health.py` (NEW) ✓
+- `src/agentos/kernel/reasoning_kernel.py` - Added health_check() ✓
+- `src/agentos/memory/smmu.py` - Added health_check() ✓
+- `src/agentos/agentos.py` - Added check_system_health() ✓
+- `src/agentos/cli.py` - Added /health command ✓
+- `src/agentos/scheduler/cognitive_scheduler.py` - TODO: Add health_check()
+- `src/agentos/sync/orchestrator.py` - TODO: Add health_check()
 
 **Success criteria:**
-- Component failures are isolated and don't cascade
-- Failed components auto-recover after timeout
-- Health checks detect problems before failures
+- [x] Health checks detect problems before failures
+- [x] Unhealthy components block operations with clear error messages
+- [ ] Component failures are isolated and don't cascade (DEFERRED)
+- [ ] Failed components auto-recover after timeout (DEFERRED)
 
 ---
 

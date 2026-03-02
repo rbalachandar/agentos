@@ -33,6 +33,9 @@ from agentos.memory.tiers.l2_ram import L2RAM, L2Config, compute_slice_embedding
 from agentos.memory.tiers.l3_storage import L3Storage, L3Config
 from agentos.memory.types import MemoryTier, PageTableEntry, PagingResult
 
+# Health check types (imported locally to avoid circular dependency)
+HealthStatus = Any
+
 
 @dataclass
 class SMMUConfig:
@@ -578,3 +581,64 @@ class SMMU:
         if hasattr(self, "adaptive_scorer") and self.adaptive_scorer:
             return self.adaptive_scorer.is_warmed_up
         return True  # No adaptive scorer = always "warmed up"
+
+    def health_check(self) -> HealthStatus:
+        """Check the health of the S-MMU.
+
+        Returns:
+            HealthStatus indicating S-MMU health
+        """
+        from agentos.common.health import HealthState, HealthStatus, healthy, degraded, unhealthy
+
+        stats = self.get_memory_stats()
+
+        # Check each tier for issues
+        issues = []
+
+        # L1 health
+        l1_util = stats["l1"]["utilization"]
+        if l1_util > 0.95:
+            issues.append(("L1", f"L1 cache nearly full: {l1_util:.1%}"))
+        elif l1_util > 0.9:
+            issues.append(("L1", f"L1 cache highly utilized: {l1_util:.1%}"))
+
+        # L2 health
+        l2_util = stats["l2"]["utilization"]
+        if l2_util > 0.95:
+            issues.append(("L2", f"L2 nearly full: {l2_util:.1%}"))
+
+        # L3 health
+        l3_count = stats["l3"]["slice_count"]
+        if l3_count > self.config.l3_config.max_slices * 0.9:
+            issues.append(("L3", f"L3 approaching capacity: {l3_count} slices"))
+
+        # Page table health
+        pt_stats = stats["page_table"]
+        total_entries = pt_stats["total"]
+        if total_entries > 100000:  # Abnormally large
+            issues.append(("PageTable", f"Too many entries: {total_entries}"))
+
+        if issues:
+            # Determine severity
+            has_critical = any(
+                tier == "L1" or tier == "PageTable" for tier, _ in issues
+            )
+
+            if has_critical:
+                return unhealthy(
+                    component="smmu",
+                    message=f"S-MMU has critical issues: {len(issues)}",
+                    details={"issues": issues},
+                )
+            else:
+                return degraded(
+                    component="smmu",
+                    message=f"S-MMU is degraded: {len(issues)} issues",
+                    details={"issues": issues},
+                )
+
+        return healthy(
+            component="smmu",
+            message="S-MMU is healthy",
+            details=stats,
+        )
