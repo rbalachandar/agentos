@@ -375,6 +375,25 @@ class AgentOS:
 
         participating_agents = [self._agents[aid] for aid in agents if aid in self._agents]
 
+        # Critical Point: Check system health before starting collaboration
+        system_health = self.check_system_health()
+        if system_health.is_unhealthy and system_health.unhealthy_components:
+            unhealthy_list = ", ".join(system_health.unhealthy_components)
+            return CollaborationResult(
+                task_id=task_id,
+                task_description=task,
+                start_time=start_time,
+                end_time=datetime.now(),
+                duration_ms=0,
+                agents_participated=[],
+                total_sync_pulses=0,
+                total_tool_calls=0,
+                final_result=None,
+                agent_contributions={},
+                success=False,
+                error=f"System health check failed: unhealthy components: {unhealthy_list}",
+            )
+
         if not participating_agents:
             return CollaborationResult(
                 task_id=task_id,
@@ -650,6 +669,54 @@ class AgentOS:
         if hasattr(self.smmu, "adaptive_scorer") and self.smmu.adaptive_scorer:
             return self.smmu.adaptive_scorer.get_warmup_stats()
         return None
+
+    def check_system_health(self) -> SystemHealth:
+        """Check health of all system components.
+
+        Calls health_check() on each component and aggregates results.
+
+        Returns:
+            SystemHealth with all component statuses
+        """
+        from agentos.common.health import SystemHealth
+
+        system_health = SystemHealth()
+
+        # Check kernel health
+        try:
+            if self._kernel or self._kernel_loaded:
+                kernel_health = self.kernel.health_check()
+                system_health.register(kernel_health)
+        except Exception as e:
+            from agentos.common.health import unhealthy
+            system_health.register(unhealthy(
+                component="reasoning_kernel",
+                message=f"Exception during health check: {e}",
+                error=e,
+            ))
+
+        # Check S-MMU health
+        try:
+            smmu_health = self.smmu.health_check()
+            system_health.register(smmu_health)
+        except Exception as e:
+            from agentos.common.health import unhealthy
+            system_health.register(unhealthy(
+                component="smmu",
+                message=f"Exception during health check: {e}",
+                error=e,
+            ))
+
+        return system_health
+
+    def get_health_status(self) -> dict[str, Any]:
+        """Get simplified health status for quick inspection.
+
+        Returns:
+            Dictionary with health summary
+        """
+        system_health = self.check_system_health()
+        return system_health.to_dict()
 
     def __enter__(self) -> "AgentOS":
         """Context manager entry."""

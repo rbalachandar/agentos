@@ -53,6 +53,10 @@ After making ANY changes, review for:
 - [ ] No unused variables (check `_` prefix for intentionally unused)
 - [ ] No commented-out code blocks
 - [ ] No dead/unreachable code
+- [ ] **CRITICAL: All new public methods are actually called/used somewhere**
+  - For each new public method added, verify it has at least one caller
+  - Use grep: `grep -r "method_name(" src/` to find callers
+  - If no caller exists, either add one or make it private (`_method_name`)
 
 ### 5. Performance
 - [ ] No O(n²) where O(n) is possible
@@ -92,6 +96,30 @@ After making ANY changes, review for:
 - [ ] Code works with Python 3.10+
 - [ ] No features requiring Python 3.11+ unless documented
 - [ ] `from __future__ import annotations` for union types
+
+### 11. Complexity Analysis (REQUIRED)
+After implementing any feature, assess complexity:
+
+**Complexity Levels:**
+- **Low**: Simple data transfer, config changes, <50 LOC, 1-2 files
+- **Medium**: Algorithm changes, new class, 50-200 LOC, 2-4 files
+- **High**: New subsystem, multiple interacting components, >200 LOC, >4 files
+
+**For Medium+ Complexity:**
+- [ ] Is there a simpler approach that achieves the same goal?
+- [ ] Can this be broken into smaller, independent changes?
+- [ ] Are we adding abstraction without clear benefit?
+- [ ] Would a future maintainer understand this without reading a paper?
+
+**Anti-Patterns to Avoid:**
+- Implementing a pattern just because it's "standard"
+- Adding infrastructure before it's needed (YAGNI)
+- Creating complex hierarchies for simple problems
+
+**Self-Review Question:**
+> "If I were reviewing this PR, would I ask 'why is this so complex?'"
+
+If yes, simplify before committing.
 
 ## Self-Correction Protocol
 
@@ -159,7 +187,11 @@ except (ValueError, KeyError) as e:
 1. Read the entire file you modified
 2. Search for TODO/FIXME/HACK comments you may have left
 3. Run the full checklist above
-4. Ask: "Would this pass a code review from a senior developer?"
+4. **CRITICAL: Integration Check**
+   - For each new public method: `grep -r "method_name(" src/` to verify it's called
+   - For each new class: verify it's instantiated somewhere
+   - For each new module: verify it's imported in `__init__.py` if public
+5. Ask: "Would this pass a code review from a senior developer?"
 
 ### Before Creating Issues/PRs
 1. Ensure all tests pass
